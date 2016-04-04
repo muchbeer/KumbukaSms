@@ -49,8 +49,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void refreshSmsInbox() {
+
+        // List required columns
+        String[] reqCols = new String[] { "_id", "address", "body" };
+       // String selection = "address = ? AND body = ? AND read = ?";
+        String selection = "address = ? AND body = ?";
+
+        String[] selectionArgs = {"M-PESA", "Imethibitisha"};
+
+
         ContentResolver contentResolver = getContentResolver();
-        Cursor smsInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"), null, null, null, null);
+        Cursor smsInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"), null, selection, selectionArgs, null);
         int indexBody = smsInboxCursor.getColumnIndex("body");
         int indexAddress = smsInboxCursor.getColumnIndex("address");
         if (indexBody < 0 || !smsInboxCursor.moveToFirst()) return;
@@ -106,6 +115,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } catch (Exception e) {
             e.printStackTrace();
         }
-    
+
     }
 }
