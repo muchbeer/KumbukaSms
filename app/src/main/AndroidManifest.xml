@@ -26,16 +26,18 @@
             </intent-filter>
         </receiver>
 
+        <!-- The Content Provider is declared -->
         <provider
-            android:name=".MyProvider"
-            android:authorities="king.muchbeer.kumbukasms.MyProvider"
+            android:name=".ContentProvider"
+            android:authorities="king.muchbeer.kumbukasms.ContentProvider"
             android:exported="true"
             android:multiprocess="true" >
         </provider>
 
+
+
         <activity android:name=".MainActivityContent"
-                    android:label="@string/app_name"
-            ></activity>
+                    android:label="@string/app_name" ></activity>
 
 
     </application>
