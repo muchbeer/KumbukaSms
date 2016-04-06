@@ -1,7 +1,9 @@
 package king.muchbeer.kumbukasms;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,7 +24,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     ArrayList<String> smsMessagesList = new ArrayList<String>();
     ListView smsListView;
     ArrayAdapter arrayAdapter;
-
+    private String varAddress  = "";
+    private String varBody = "";
+    DataBaseHelperAdapter dataBaseHelper;
     public static MainActivity instance() {
         return inst;
     }
@@ -32,6 +36,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        dataBaseHelper = new DataBaseHelperAdapter(this);
+      //  SQLiteDatabase sqLiteDatabase = dataBaseHelper.getWritableDatabase();
+
 
         smsListView = (ListView) findViewById(R.id.SMSList);
         arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, smsMessagesList);
@@ -53,9 +61,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // List required columns
         String[] reqCols = new String[] { "_id", "address", "body" };
        // String selection = "address = ? AND body = ? AND read = ?";
-        String selection = "address = ? AND body = ?";
+        String selection = "address = ?";
 
-        String[] selectionArgs = {"M-PESA", "Imethibitisha"};
+        String[] selectionArgs = {"M-PESA"};
 
 
         ContentResolver contentResolver = getContentResolver();
@@ -65,10 +73,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (indexBody < 0 || !smsInboxCursor.moveToFirst()) return;
         arrayAdapter.clear();
         do {
+
+            varAddress=smsInboxCursor.getString(indexAddress);
+            varBody = smsInboxCursor.getString(indexBody);
             String str = "SMS From: " + smsInboxCursor.getString(indexAddress) +
                     "\n" + smsInboxCursor.getString(indexBody) + "\n";
             arrayAdapter.add(str);
         } while (smsInboxCursor.moveToNext());
+
+      long rowId =   dataBaseHelper.insertData(varAddress,varBody);
+
+        if(rowId<0) {
+            ToastMessage.message(this, "Something went wrong");
+        }else {
+            ToastMessage.message(this,"Record successfull added");
+        }
+
     }
 
     public void updateList(final String smsMessage) {
@@ -92,6 +112,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            Intent startDatabas =  new Intent(this, MainActivityContent.class);
+            startActivity(startDatabas);
+
             return true;
         }
 
