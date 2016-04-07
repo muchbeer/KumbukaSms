@@ -1,6 +1,7 @@
 package king.muchbeer.kumbukasms;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -79,8 +80,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             String str = "SMS From: " + smsInboxCursor.getString(indexAddress) +
                     "\n" + smsInboxCursor.getString(indexBody) + "\n";
             arrayAdapter.add(str);
+
         } while (smsInboxCursor.moveToNext());
 
+        insertDataForContentProvider(varAddress, varBody);
+        /*
       long rowId =   dataBaseHelper.insertData(varAddress,varBody);
 
         if(rowId<0) {
@@ -88,7 +92,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }else {
             ToastMessage.message(this,"Record successfull added");
         }
+*/
+    }
 
+    public void insertDataForContentProvider(String address, String body) {
+
+        // Get the name supplied
+        //  String name = contactNameEditText.getText().toString();
+
+        // Stores a key value pair
+        ContentValues values = new ContentValues();
+        values.put(DataBaseHelperAdapter.DataBaseHelper.COLUMN_ADDRESS, address);
+        values.put(DataBaseHelperAdapter.DataBaseHelper.COLUMN_BODY, body);
+
+        // Provides access to other applications Content Providers
+        getContentResolver().insert(ContentProvider.CONTENT_URL, values);
+        ToastMessage.message(this, "New Record has been added");
     }
 
     public void updateList(final String smsMessage) {

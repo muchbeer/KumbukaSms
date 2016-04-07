@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,13 +30,22 @@ public DataBaseHelperAdapter(Context context) {
         return id;
 
     }
+
+
   static class DataBaseHelper   extends SQLiteOpenHelper {
       //public static final String SMS_URI = “/data/data/org.secure.sms/databases/”;
       public static final String db_name = "sms.db";
       public static final String TABLE_NAME="database";
       public static final String COLUMN_ADDRESS = "address";
       public static final String COLUMN_BODY = "body";
+      public static final String COLUMN_ID="id";
       public static final int version =1;
+
+      static final String CREATE_DB_TABLE = " CREATE TABLE " + TABLE_NAME
+              + " (id INTEGER PRIMARY KEY AUTOINCREMENT, "
+              + " address TEXT NOT NULL, "
+              + " body TEXT NOT NULL);";
+
 
       Context context;
       public DataBaseHelper(Context context) {
@@ -51,7 +61,16 @@ public DataBaseHelperAdapter(Context context) {
           //_id INTEGER PRIMARY KEY AUTOINCREMENT
 
           try {
-              sqLiteDatabase.execSQL("CREATE TABLE "+TABLE_NAME+" ("+COLUMN_ADDRESS+" VARCHAR(20), "+COLUMN_BODY+" VARCHAR(30))");
+
+              /*
+
+              "CREATE TABLE "+TABLE_NAME+" ("+COLUMN_ID+" INTEGER PRIMARY KEY AUTOINCREMENT," +
+              "   "+COLUMN_ADDRESS+" VARCHAR(20), "+COLUMN_BODY+" VARCHAR(30))"
+
+              */
+             // sqLiteDatabase.execSQL("CREATE TABLE "+TABLE_NAME+" ("+COLUMN_ADDRESS+" VARCHAR(20), "+COLUMN_BODY+" VARCHAR(30))");
+              sqLiteDatabase.execSQL(CREATE_DB_TABLE);
+
               ToastMessage.message(context, "onCreate called");
           }catch (SQLiteException e) {
               ToastMessage.message(context, ""+ e);

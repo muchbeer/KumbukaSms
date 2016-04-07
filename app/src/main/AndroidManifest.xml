@@ -34,11 +34,11 @@
             android:multiprocess="true" >
         </provider>
 
-
-
         <activity android:name=".MainActivityContent"
-                    android:label="@string/app_name" ></activity>
+                    ></activity>
 
+        <activity android:name=".MainActivityAdapter"
+            ></activity>
 
     </application>
 
