@@ -1,10 +1,15 @@
 package king.muchbeer.kumbukasms;
 
 import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,7 +29,7 @@ public class MainActivityAdapter extends AppCompatActivity implements AdapterVie
     ArrayAdapter arrayAdapter;
     private String varAddress  = "";
     private String varBody = "";
-    DataBaseHelperAdapter dataBaseHelper;
+
     // Provides access to other applications Content Providers
     ContentResolver resolver;
 
@@ -38,7 +43,9 @@ public class MainActivityAdapter extends AppCompatActivity implements AdapterVie
     static final Uri CONTENT_URL =
             Uri.parse(URL);
 
-
+    String caddress;
+    String cbody;
+    DataBaseHelperAdapter dataBaseHelper;
     public static MainActivityAdapter instance() {
         return inst;
     }
@@ -47,6 +54,10 @@ public class MainActivityAdapter extends AppCompatActivity implements AdapterVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_adapter);
+
+      //  DatabaseHelper db = new DatabaseHelper(this);
+     dataBaseHelper = new DataBaseHelperAdapter(this);
+
 
         resolver = getContentResolver();
 
@@ -60,6 +71,10 @@ public class MainActivityAdapter extends AppCompatActivity implements AdapterVie
 
     private void refreshSmsInbox() {
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String messageAddress = prefs.getString(getString(R.string.pref_message_key),
+                getString(R.string.pref_sms_default));
+
         // Projection contains the columns we want
         String[] projection = new String[]{
                 DataBaseHelperAdapter.DataBaseHelper.COLUMN_ADDRESS,
@@ -67,7 +82,8 @@ public class MainActivityAdapter extends AppCompatActivity implements AdapterVie
 
         String selection = "address = ?";
 
-        String[] selectionArgs = {"M-PESA"};
+        String[] selectionArgs = {messageAddress};
+        String[] selectionArgs2= {"ECOBANK"};
 
         // Pass the URL, projection and I'll cover the other options below
         Cursor cursor = resolver.query(CONTENT_URL, projection, null, null, null);
@@ -75,23 +91,57 @@ public class MainActivityAdapter extends AppCompatActivity implements AdapterVie
         String contactList = "";
         arrayAdapter.clear();
         // Cycle through and display every row of data
-        if(cursor.moveToFirst()){
-
-            do{
-
-                //    String cid = cursor.getString(cursor.getColumnIndex(DataBaseHelperAdapter.DataBaseHelper.COLUMN_ID));
-                String caddress = cursor.getString(cursor.getColumnIndex(DataBaseHelperAdapter.DataBaseHelper.COLUMN_ADDRESS));
-                String cbody = cursor.getString(cursor.getColumnIndex(DataBaseHelperAdapter.DataBaseHelper.COLUMN_BODY));
 
 
-                contactList = contactList + "From" + " :> " + caddress +
-                        "\n" + cbody + "\n";
+        try{
+            if(cursor.moveToFirst()){
 
-                arrayAdapter.add(contactList);
+                do{
 
-            }while (cursor.moveToNext());
+                    //    String cid = cursor.getString(cursor.getColumnIndex(DataBaseHelperAdapter.DataBaseHelper.COLUMN_ID));
+                   caddress = cursor.getString(cursor.getColumnIndex(DataBaseHelperAdapter.DataBaseHelper.COLUMN_ADDRESS));
+                    cbody = cursor.getString(cursor.getColumnIndex(DataBaseHelperAdapter.DataBaseHelper.COLUMN_BODY));
 
+                    String getaddress = "George";
+                    String getbody = "Machibya";
+                    long rowID =   dataBaseHelper.insertData(getaddress, getbody);
+
+                    // Verify a row has been added
+                    if (rowID > 0) {
+                        Toast.makeText(getApplicationContext(), "Something is wrong", Toast.LENGTH_LONG).show();
+
+                        // Append the given id to the path and return a Builder used to manipulate URI
+                        // references
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Something is wrong", Toast.LENGTH_LONG).show();
+                    }
+
+                    contactList = contactList + "From" + " :> " + caddress +
+                            "\n" + cbody + "\n";
+
+                    arrayAdapter.add(contactList);
+
+                }while (cursor.moveToNext());
+
+               //dataBaseHelper.insertData(caddress, cbody);
+             //   boolean checkifDataInsert=
+
+               // boolean tempBoo = dataBaseHelper.DataBaseHelper.insertMessage(caddress,cbody);
+/*
+                if(checkifDataInsert) {
+                    Toast.makeText(getApplicationContext(),"Data Inserted Succesfull", Toast.LENGTH_LONG).show();
+                }
+                else {
+                   Toast.makeText(getApplicationContext(),"Data failed to insert", Toast.LENGTH_LONG).show();
+
+               }
+
+               */
+            }
+        }finally {
+            cursor.close();
         }
+
 
      //   contactsTextView.setText(contactList);
     }
@@ -115,5 +165,36 @@ public class MainActivityAdapter extends AppCompatActivity implements AdapterVie
         }
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_setting, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.messages_settings) {
+
+            Intent startSetting = new Intent(this, SettingActivity.class);
+            startActivity(startSetting);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStart() {
+        refreshSmsInbox();
+        super.onStart();
     }
 }

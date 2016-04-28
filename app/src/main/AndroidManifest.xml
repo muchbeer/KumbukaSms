@@ -28,11 +28,18 @@
 
         <!-- The Content Provider is declared -->
         <provider
+            android:name=".data.SmsProvider"
+            android:authorities="king.muchbeer.kumbukasms.data.SmsProvider"
+            android:exported="true"
+            android:multiprocess="true" >
+        </provider>
+
+        <provider
             android:name=".ContentProvider"
             android:authorities="king.muchbeer.kumbukasms.ContentProvider"
             android:exported="true"
             android:multiprocess="true" >
-        </provider>
+        </provider>5
 
         <activity android:name=".MainActivityContent"
                     ></activity>
@@ -40,6 +47,18 @@
         <activity android:name=".MainActivityAdapter"
             ></activity>
 
+        <activity android:name=".SettingActivity"
+            ></activity>
+
+        <activity android:name=".DisplayActivity"
+            ></activity>
+
+        <activity android:name=".AddActivity"></activity>
+
+        <activity android:name=".sqlite.MainActivity"></activity>
+
+        <activity android:name=".sqlite.DisplayListActivity"></activity>
+        <activity android:name=".sqlite.GetAddressActivity"></activity>
     </application>
 
 </manifest>

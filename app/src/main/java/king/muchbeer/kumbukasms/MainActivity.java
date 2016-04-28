@@ -2,6 +2,7 @@ package king.muchbeer.kumbukasms;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -28,6 +29,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private String varAddress  = "";
     private String varBody = "";
     DataBaseHelperAdapter dataBaseHelper;
+    SQLiteDatabase sqLiteDatabase;
+    public static final String TABLE_NAME="database";
+    private DataBaseHelperAdapter.DataBaseHelper dataBaseHelper23;
+
     public static MainActivity instance() {
         return inst;
     }
@@ -38,8 +43,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+//  DatabaseHelper db = new DatabaseHelper(this);
         dataBaseHelper = new DataBaseHelperAdapter(this);
-      //  SQLiteDatabase sqLiteDatabase = dataBaseHelper.getWritableDatabase();
+
+
 
 
         smsListView = (ListView) findViewById(R.id.SMSList);
@@ -68,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         ContentResolver contentResolver = getContentResolver();
-        Cursor smsInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"), null, selection, selectionArgs, null);
+        Cursor smsInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"), null, null, null , null);
         int indexBody = smsInboxCursor.getColumnIndex("body");
         int indexAddress = smsInboxCursor.getColumnIndex("address");
         if (indexBody < 0 || !smsInboxCursor.moveToFirst()) return;
@@ -82,8 +89,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             arrayAdapter.add(str);
 
         } while (smsInboxCursor.moveToNext());
+        long rowID =   dataBaseHelper.insertData(varAddress, varBody);
 
-        insertDataForContentProvider(varAddress, varBody);
+        // Verify a row has been added
+        if (rowID > 0) {
+            Toast.makeText(getApplicationContext(), "Database has been added successful", Toast.LENGTH_LONG).show();
+
+            // Append the given id to the path and return a Builder used to manipulate URI
+            // references
+        } else {
+            Toast.makeText(getApplicationContext(), "Something is wrong", Toast.LENGTH_LONG).show();
+        }
+
+
+        //  insertDataForContentProvider(varAddress, varBody);
         /*
       long rowId =   dataBaseHelper.insertData(varAddress,varBody);
 
@@ -106,10 +125,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         values.put(DataBaseHelperAdapter.DataBaseHelper.COLUMN_BODY, body);
 
         // Provides access to other applications Content Providers
-        getContentResolver().insert(ContentProvider.CONTENT_URL, values);
+        Uri uri = getContentResolver().insert(ContentProvider.CONTENT_URL, values);
         ToastMessage.message(this, "New Record has been added");
     }
 
+
+    public void deleteDataForContentProvider() {
+
+        //    sqLiteDatabase.delete(MYDATABASE_TABLE, KEY_ID+"="+id, null);
+        //sqLiteDatabase.delete(MYDATABASE_TABLE, null, null);
+
+        dataBaseHelper23 = new DataBaseHelperAdapter.DataBaseHelper(this);
+        sqLiteDatabase  = dataBaseHelper23.getWritableDatabase();
+        sqLiteDatabase.delete(TABLE_NAME, null, null);
+        ToastMessage.message(this, "All recorded successfull deleted");
+    }
     public void updateList(final String smsMessage) {
         arrayAdapter.insert(smsMessage, 0);
         arrayAdapter.notifyDataSetChanged();
@@ -132,12 +162,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
 
-            Intent startDatabas =  new Intent(this, MainActivityContent.class);
+            Intent startDatabas =  new Intent(this, king.muchbeer.kumbukasms.sqlite.MainActivity.class);
             startActivity(startDatabas);
 
             return true;
         }
 
+        if(id==R.id.delete_sqlite) {
+
+
+
+        }
         return super.onOptionsItemSelected(item);
     }
 

@@ -60,30 +60,24 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     private void putSmsToDatabase(SmsMessage smsMessage, Context context) {
 
 
+        DataBaseHelperAdapter.DataBaseHelper dataBaseHelper = new DataBaseHelperAdapter.DataBaseHelper(context);
 
+        SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
 
-     //  putAddress  = smsMessage.getOriginatingAddress().toString();
+       putAddress  = smsMessage.getOriginatingAddress().toString();
         putBody = smsMessage.getMessageBody().toString();
-   //     SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
 
         String mydate = java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
 // Create SMS row
         ContentValues values = new ContentValues();
-     //   values.put(dataBaseHelper.COLUMN_ADDRESS, putAddress );
-     //   values.put(dataBaseHelper.COLUMN_BODY, putBody);
+       values.put(dataBaseHelper.COLUMN_ADDRESS, putAddress );
+       values.put(dataBaseHelper.COLUMN_BODY, putBody);
 
         // long id=  db.insert("datatable", null, values);
-     //   db.insert(dataBaseHelper.TABLE_NAME, null, values);
-
-        // values.put("date", mydate);
-// values.put( READ, MESSAGE_IS_NOT_READ );
-// values.put( STATUS, sms.getStatus() );
-// values.put( TYPE, MESSAGE_TYPE_INBOX );
-// values.put( SEEN, MESSAGE_IS_NOT_SEEN );
+       db.insert(dataBaseHelper.TABLE_NAME, null, values);
 
 
-
-      //  db.close();
+        db.close();
 
            // return id;
        }

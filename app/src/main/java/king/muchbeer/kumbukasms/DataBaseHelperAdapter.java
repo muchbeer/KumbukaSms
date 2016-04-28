@@ -2,12 +2,17 @@ package king.muchbeer.kumbukasms;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+
+import king.muchbeer.kumbukasms.sqlite.UserContract;
 
 /**
  * Created by muchbeer on 4/5/2016.
@@ -32,19 +37,38 @@ public DataBaseHelperAdapter(Context context) {
     }
 
 
-  static class DataBaseHelper   extends SQLiteOpenHelper {
+    public boolean insertMessage (String address, String body)
+    {
+        SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("name", address);
+        contentValues.put("phone", body);
+
+        db.insert("Message", null, contentValues);
+        return true;
+    }
+
+
+
+ public static class DataBaseHelper   extends SQLiteOpenHelper {
       //public static final String SMS_URI = “/data/data/org.secure.sms/databases/”;
       public static final String db_name = "sms.db";
       public static final String TABLE_NAME="database";
       public static final String COLUMN_ADDRESS = "address";
       public static final String COLUMN_BODY = "body";
       public static final String COLUMN_ID="id";
-      public static final int version =1;
+      public static final int version =4;
 
-      static final String CREATE_DB_TABLE = " CREATE TABLE " + TABLE_NAME
-              + " (id INTEGER PRIMARY KEY AUTOINCREMENT, "
-              + " address TEXT NOT NULL, "
-              + " body TEXT NOT NULL);";
+      // Database creation SQL statement
+     private static final String CREATE_DB_TABLE = "CREATE TABLE "
+              + TABLE_NAME
+              + "("
+              + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+              + COLUMN_ADDRESS + " TEXT NOT NULL, "
+              + COLUMN_BODY + " TEXT NOT NULL"
+              +");";
+
 
 
       Context context;
@@ -58,55 +82,35 @@ public DataBaseHelperAdapter(Context context) {
       public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
           //Auto Increment Field
-          //_id INTEGER PRIMARY KEY AUTOINCREMENT
+          sqLiteDatabase.execSQL(CREATE_DB_TABLE);
+          ToastMessage.message(context, "onCreate called");
 
-          try {
-
-              /*
-
-              "CREATE TABLE "+TABLE_NAME+" ("+COLUMN_ID+" INTEGER PRIMARY KEY AUTOINCREMENT," +
-              "   "+COLUMN_ADDRESS+" VARCHAR(20), "+COLUMN_BODY+" VARCHAR(30))"
-
-              */
-             // sqLiteDatabase.execSQL("CREATE TABLE "+TABLE_NAME+" ("+COLUMN_ADDRESS+" VARCHAR(20), "+COLUMN_BODY+" VARCHAR(30))");
-              sqLiteDatabase.execSQL(CREATE_DB_TABLE);
-
-              ToastMessage.message(context, "onCreate called");
-          }catch (SQLiteException e) {
-              ToastMessage.message(context, ""+ e);
-          }
-
-          //  Toast.makeText(context, "database created", Toast.LENGTH_LONG).show();
           Log.i("dbcreate", "DATABASE HAS CREATED");
       }
 
-      public boolean checkDataBase(String db) {
 
-          SQLiteDatabase checkDB = null;
 
-          try {
-              String myPath = "data/data/"+ context.getPackageName() +"/databases/" + db;
-              checkDB = SQLiteDatabase.openDatabase(myPath, null,
-                      SQLiteDatabase.OPEN_READONLY);
 
-          } catch (SQLiteException e) {
+     public Cursor getinformation(SQLiteDatabase db){
+         Cursor cursor;
+         String[] projections={ UserContract.NewUserInfo.COLUMN_ADDRESS,UserContract.NewUserInfo.COLUMN_BODY};
+         cursor= db.query(UserContract.NewUserInfo.TABLE_NAME, projections, null, null, null, null, null);
+         return cursor;
+     }
 
-// database does’t exist yet.
+     public Cursor getSpecificAddress(SQLiteDatabase db, String address) {
 
-          } catch (Exception e) {
+     //    SQLiteDatabase db = getWritableDatabase();
+         Cursor cursor;
+         //select address, Password from table
+         String[] columns = {UserContract.NewUserInfo.COLUMN_ADDRESS, UserContract.NewUserInfo.COLUMN_BODY};
+       cursor = db.query(UserContract.NewUserInfo.TABLE_NAME,
+                 columns,UserContract.NewUserInfo.COLUMN_ADDRESS+" ='"+address+"'",
+                 null,null,null,null);
 
-          }
+         return cursor;
 
-          if (checkDB != null) {
-
-              checkDB.close();
-
-          }
-
-          return checkDB != null ? true : false;
-
-      }
-
+     }
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 // TODO Auto-generated method stub
@@ -121,5 +125,7 @@ public DataBaseHelperAdapter(Context context) {
           Log.d("Sample Data", "onUpgrade : " + newVersion);
           ToastMessage.message(context, "onUpgrade");
       }
+
+
   }
 }

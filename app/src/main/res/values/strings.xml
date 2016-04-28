@@ -3,4 +3,27 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Display records</string>
+
+    <!-- Menu label to fetch updated weather info from the server -->
+    <string name="action_refresh" translatable="false">Refresh</string>
+    <string name="title_activity_detail">Details</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Label for the location preference [CHAR LIMIT=30] -->
+    <string name="pref_sms_label">Message Title</string>
+
+    <!-- Key name for storing location in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_message_key" translatable="false">message</string>
+    <string name="pref_message_list_key" translatable="false">list</string>
+
+
+    <!-- Default postal code for location preference [CHAR LIMIT=NONE] -->
+    <string name="pref_sms_default" translatable="false">M-PESA</string>
+    <string name="mobile_setting">Enter Message</string>
+    <string name="pref_choose_message_list">Choose from list</string>
+
+    <string name="pref_mpesa_label_metric">M-PESA</string>
+    <string name="pref_vodataarifa_label_metric">VodaTaarifa</string>
+    <string name="pref_crdbbank_label_metric">CRDB BANK</string>
+
 </resources>
