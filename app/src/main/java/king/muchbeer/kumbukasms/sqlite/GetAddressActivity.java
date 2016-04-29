@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputFilter;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -33,6 +34,10 @@ public class GetAddressActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_address);
 
+        InputFilter[] lengthFilter = new InputFilter[1];
+        lengthFilter[0] = new InputFilter.LengthFilter(9); //Filter to 9 characters
+
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String messageAddress = prefs.getString(getString(R.string.pref_message_key),
                 getString(R.string.pref_sms_default));
@@ -45,20 +50,29 @@ public class GetAddressActivity extends AppCompatActivity {
         sqLiteDatabase=userDbHelper.getReadableDatabase();
         cursor=userDbHelper.getSpecificAddress(sqLiteDatabase, messageAddress);
 
-        if(cursor.moveToFirst())
-        {
+        int indexBody = cursor.getColumnIndex(UserContract.NewUserInfo.COLUMN_BODY);
+        int indexAddress = cursor.getColumnIndex(UserContract.NewUserInfo.COLUMN_ADDRESS);
+
+        //   if(cursor.moveToFirst())
+            if (indexBody < 0 || !cursor.moveToFirst()) return;
             do {
-                String id,address,body;
+                String id,address,body, codebody;
+
+
+
+                //    body.setFilters
 
                 // mCursor.getColumnIndex(dataBaseHelper.COLUMN_BODY)
-                address= cursor.getString(cursor.getColumnIndex(UserContract.NewUserInfo.COLUMN_ADDRESS));
-                body= cursor.getString(cursor.getColumnIndex(UserContract.NewUserInfo.COLUMN_BODY));
+                address= cursor.getString(indexAddress);
+                body= cursor.getString(indexBody);
+             //   codebody = body.substring(0,9);
+
                 // email=cursor.getString(cursor.);
-                DataProvider dataProvider=new DataProvider(address,body);
+                DataProvider dataProvider=new DataProvider(address,body.substring(0,9));
                 listDataAdpter.add(dataProvider);
 
             }while (cursor.moveToNext());
-        }
+
     }
 
 
@@ -84,6 +98,9 @@ public class GetAddressActivity extends AppCompatActivity {
             return true;
         }
 
+        if(id==R.id.message_keys) {
+           // Intent startCode = new Intent(this, GetCodeActitivity.class);
+        }
         return super.onOptionsItemSelected(item);
     }
 }

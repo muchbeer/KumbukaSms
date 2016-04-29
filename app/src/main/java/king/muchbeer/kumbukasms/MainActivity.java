@@ -4,9 +4,11 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,6 +21,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import king.muchbeer.kumbukasms.sqlite.UserContract;
+
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
 
@@ -28,10 +32,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     ArrayAdapter arrayAdapter;
     private String varAddress  = "";
     private String varBody = "";
+    private String varCodeBody="";
     DataBaseHelperAdapter dataBaseHelper;
     SQLiteDatabase sqLiteDatabase;
     public static final String TABLE_NAME="database";
     private DataBaseHelperAdapter.DataBaseHelper dataBaseHelper23;
+    long rowID;
 
     public static MainActivity instance() {
         return inst;
@@ -54,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         smsListView.setAdapter(arrayAdapter);
         smsListView.setOnItemClickListener(this);
 
-        refreshSmsInbox();
+
     }
 
 
@@ -64,18 +70,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         inst = this;
     }
 
-    public void refreshSmsInbox() {
+    public void refreshSmsInbox(String findAddress) {
+
+
+
 
         // List required columns
-        String[] reqCols = new String[] { "_id", "address", "body" };
-       // String selection = "address = ? AND body = ? AND read = ?";
+        String[] projections={ UserContract.NewUserInfo.COLUMN_ADDRESS,UserContract.NewUserInfo.COLUMN_BODY};
+
+        // String selection = "address = ? AND body = ? AND read = ?";
         String selection = "address = ?";
 
         String[] selectionArgs = {"M-PESA"};
 
 
         ContentResolver contentResolver = getContentResolver();
-        Cursor smsInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"), null, null, null , null);
+        Cursor smsInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"), projections,
+                UserContract.NewUserInfo.COLUMN_ADDRESS+" ='"+findAddress+"'", null , null);
         int indexBody = smsInboxCursor.getColumnIndex("body");
         int indexAddress = smsInboxCursor.getColumnIndex("address");
         if (indexBody < 0 || !smsInboxCursor.moveToFirst()) return;
@@ -85,11 +96,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             varAddress=smsInboxCursor.getString(indexAddress);
             varBody = smsInboxCursor.getString(indexBody);
             String str = "SMS From: " + smsInboxCursor.getString(indexAddress) +
-                    "\n" + smsInboxCursor.getString(indexBody) + "\n";
+                    "\n" + varBody + "\n";
             arrayAdapter.add(str);
 
+          rowID =   dataBaseHelper.insertData(varAddress, varBody);
         } while (smsInboxCursor.moveToNext());
-        long rowID =   dataBaseHelper.insertData(varAddress, varBody);
+
 
         // Verify a row has been added
         if (rowID > 0) {
@@ -168,10 +180,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             return true;
         }
 
-        if(id==R.id.delete_sqlite) {
+        if(id==R.id.main_settings) {
 
-
-
+            Intent startSetting =  new Intent(this, SettingActivity.class);
+            startActivity(startSetting);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -194,5 +206,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String messageAddress = prefs.getString(getString(R.string.pref_message_key),
+                getString(R.string.pref_sms_default));
+
+
+        refreshSmsInbox(messageAddress);
     }
 }

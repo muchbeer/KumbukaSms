@@ -7,4 +7,9 @@
         android:orderInCategory="100"
         android:title="@string/mobile_setting"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/message_keys"
+        android:title="Retreive Codes"
+        />
 </menu>

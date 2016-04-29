@@ -13,4 +13,9 @@
         android:title="Delete recdords"
         app:showAsAction="never"
         />
+    <item
+        android:id="@+id/main_settings"
+        android:title="Settings"
+
+        />
 </menu>
