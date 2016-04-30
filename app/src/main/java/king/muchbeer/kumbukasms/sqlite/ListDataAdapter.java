@@ -22,7 +22,7 @@ public class ListDataAdapter extends ArrayAdapter {
         super(context, resource);
     }
     static class LayoutHandler{
-        TextView ADDRESS,BODY;
+        TextView ADDRESS,BODY, NAME;
     }
     public void add(Object object){
         super.add(object);
@@ -47,6 +47,7 @@ public class ListDataAdapter extends ArrayAdapter {
             layoutHandler=new LayoutHandler();
             layoutHandler.ADDRESS=(TextView)row.findViewById(R.id.test_user_name);
             layoutHandler.BODY=(TextView)row.findViewById(R.id.test_user_mob);
+          //  layoutHandler.NAME = (TextView) row.findViewById(R.id.test_user);
          //   layoutHandler.EMAIL=(TextView)row.findViewById(R.id.test_user_Email);
             row.setTag(layoutHandler);
         }
@@ -57,6 +58,7 @@ public class ListDataAdapter extends ArrayAdapter {
         DataProvider dataProvider=(DataProvider)this.getTtem(position);
         layoutHandler.ADDRESS.setText(dataProvider.getAddress());
         layoutHandler.BODY.setText(dataProvider.getBody());
+     //   layoutHandler.NAME.setText(dataProvider.getBody());
      //   layoutHandler.EMAIL.setText(dataProvider.getEmail());
         return row;
     }

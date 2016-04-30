@@ -53,10 +53,12 @@ public class GetAddressActivity extends AppCompatActivity {
         int indexBody = cursor.getColumnIndex(UserContract.NewUserInfo.COLUMN_BODY);
         int indexAddress = cursor.getColumnIndex(UserContract.NewUserInfo.COLUMN_ADDRESS);
 
+        int indexOfBody, indexOfSecondChar;
+
         //   if(cursor.moveToFirst())
             if (indexBody < 0 || !cursor.moveToFirst()) return;
             do {
-                String id,address,body, codebody;
+                String id,address,body, getName, codebody;
 
 
 
@@ -65,10 +67,20 @@ public class GetAddressActivity extends AppCompatActivity {
                 // mCursor.getColumnIndex(dataBaseHelper.COLUMN_BODY)
                 address= cursor.getString(indexAddress);
                 body= cursor.getString(indexBody);
+                getName = cursor.getString(indexBody);
+
+                indexOfBody = body.indexOf("cash");
+                if (indexOfBody>=0) {
+                    codebody = getName.substring(body.indexOf("cash to", body.indexOf("New") ));
+
+                }else {
+                    codebody="No Name";
+                }
+              //  getName.substring(body.)
              //   codebody = body.substring(0,9);
 
                 // email=cursor.getString(cursor.);
-                DataProvider dataProvider=new DataProvider(address,body.substring(0,9));
+                DataProvider dataProvider=new DataProvider(address,body.substring(0,9)+ ":" +codebody);
                 listDataAdpter.add(dataProvider);
 
             }while (cursor.moveToNext());

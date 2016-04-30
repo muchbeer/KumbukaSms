@@ -38,6 +38,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public static final String TABLE_NAME="database";
     private DataBaseHelperAdapter.DataBaseHelper dataBaseHelper23;
     long rowID;
+    private String getName;
+    private int indexOfBody;
+    private String codebody;
+    private int indexOfSecondLimit;
+    private int indexOfFirstLimit;
+    private String getCodeId;
 
     public static MainActivity instance() {
         return inst;
@@ -52,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 //  DatabaseHelper db = new DatabaseHelper(this);
         dataBaseHelper = new DataBaseHelperAdapter(this);
 
-
+//check the weaather I have add
 
 
         smsListView = (ListView) findViewById(R.id.SMSList);
@@ -90,16 +96,32 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int indexBody = smsInboxCursor.getColumnIndex("body");
         int indexAddress = smsInboxCursor.getColumnIndex("address");
         if (indexBody < 0 || !smsInboxCursor.moveToFirst()) return;
+
+
+
+
         arrayAdapter.clear();
         do {
-
+            getName = smsInboxCursor.getString(indexBody);
             varAddress=smsInboxCursor.getString(indexAddress);
             varBody = smsInboxCursor.getString(indexBody);
+            getCodeId = varBody.substring(0,9);
+            indexOfBody = varBody.indexOf("cash");
+            indexOfSecondLimit = varBody.indexOf("New");
+            indexOfFirstLimit = indexOfBody + 7;
+
+            if (indexOfBody>0) {
+                codebody = getName.substring(indexOfFirstLimit, indexOfSecondLimit);
+
+            }else {
+                codebody="No Name";
+            }
+
             String str = "SMS From: " + smsInboxCursor.getString(indexAddress) +
-                    "\n" + varBody + "\n";
+                    "\n" + getCodeId + "\n" + "Name: " + codebody;
             arrayAdapter.add(str);
 
-          rowID =   dataBaseHelper.insertData(varAddress, varBody);
+        //  rowID =   dataBaseHelper.insertData(varAddress, varBody);
         } while (smsInboxCursor.moveToNext());
 
 
